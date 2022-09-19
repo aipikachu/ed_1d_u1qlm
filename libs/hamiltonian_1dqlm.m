@@ -20,9 +20,21 @@ n_gauge = basis_qlm.n_gauge;
 
 %% hamiltonian generate
 ham = sparse(ns,ns);
-ham = ham + w * ham_elems.ham_elems_interaction;
 
-% 01: mass term
+% 01: matter-gauge coupling
+len_w = length(w);
+if len_w == 1
+    ham = ham + w * ham_elems.ham_elems_interaction.sumAllSite;
+elseif len_w == n_gauge
+    for kk = 1:n_gauge
+        field_cur = ['mgm_',num2str(kk),'_',num2str(kk+1)];
+        ham = ham + w(kk) * ham_elems.ham_elems_interaction.(field_cur);
+    end
+else
+    error('Error! Invalid input parameter "w"!')
+end
+
+% 02: mass term
 len_m = length(m);
 if len_m == 1
     ham = ham + m * ham_elems.ham_elems_mass.sumAllSite;
@@ -35,7 +47,7 @@ else
     error('Error! Invalid input parameter "m"!')
 end
 
-% 02: background electronic term
+% 03: background electronic term
 len_h = length(h);
 if len_h == 1
     ham = ham + h * ham_elems.ham_elems_elec.sumAllSite;

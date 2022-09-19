@@ -68,6 +68,17 @@ i_idx = [];
 j_idx = [];
 v_idx = [];
 
+idx_i_all = struct();
+idx_j_all = struct();
+idx_k_all = struct();
+for kk = 1:n_gauge
+    field_cur = ['mgm_',num2str(kk),'_',num2str(kk+1)];
+    idx_i_all.(field_cur) = [];
+    idx_j_all.(field_cur) = [];
+    idx_k_all.(field_cur) = [];
+end
+
+% matter-gauge field couping 
 for kk = 1:ns
     state_idx_cur = kk;
     
@@ -75,6 +86,8 @@ for kk = 1:ns
     matter_cur = matter_stateS(kk,:);
     
     for jj = 1:n_gauge
+        field_cur = ['mgm_',num2str(jj),'_',num2str(jj+1)];
+        
         gauge_nxt = gauge_cur;
         matter_nxt = matter_cur;
         
@@ -115,18 +128,33 @@ for kk = 1:ns
             i_idx = cat(1,i_idx,state_idx_nxt);
             j_idx = cat(1,j_idx,state_idx_cur);
             v_idx = cat(1,v_idx,vC);
+            
+            idx_i_all.(field_cur) = cat(1,...
+                idx_i_all.(field_cur),state_idx_nxt);
+            idx_j_all.(field_cur) = cat(1,...
+                idx_j_all.(field_cur),state_idx_cur);
+            idx_k_all.(field_cur) = cat(1,...
+                idx_k_all.(field_cur),vC);
+            
         catch
             continue
         end
-        
-        % ham_elems_interaction(state_idx_nxt,state_idx_cur) = -1;
-        
+
     end
     
 end
 
-% v_idx = -1 * ones(size(i_idx));
-ham_elems_interaction = sparse(i_idx,j_idx,v_idx,ns,ns);
+%
+for kk = 1:n_gauge
+    field_cur = ['mgm_',num2str(kk),'_',num2str(kk+1)];
+    i_cur = idx_i_all.(field_cur);
+    j_cur = idx_j_all.(field_cur);
+    k_cur = idx_k_all.(field_cur);
+    
+    ham_elems_interaction.(field_cur) = sparse(i_cur,j_cur,k_cur,ns,ns);
+
+end
+ham_elems_interaction.sumAllSite = sparse(i_idx,j_idx,v_idx,ns,ns);
 
 
 %% results

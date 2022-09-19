@@ -80,8 +80,9 @@ phi_init(state_idx_init) = 1;
 
 
 %% Hamiltonian parameters
-w = 25 * 2 * pi;    % gauge-matter coupling
-m = -4 * abs(w);     % matter field
+w0 = 25 * 2 * pi;
+w = ones(1,n_gauge) * w0;    % gauge-matter coupling
+m = -4 * abs(w0);     % matter field
 h = 0.0 * 2 * pi;     % background-electronic field 
 % h = (rand(1,n_gauge)-0.5) * 20.0 * 2 * pi; % background-electronic field 
 % h = ones(1,n_gauge) * 4.0 * 2 * pi; % background-electronic field 

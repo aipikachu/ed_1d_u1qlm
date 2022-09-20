@@ -69,9 +69,13 @@ end
 %% in atom number case
 matter_atom_stateS = abs(matter_stateS);
 gauge_atom_stateS = zeros(size(gauge_stateS));
+atom_occupationS = zeros(ns,L);
 
 gauge_atom_stateS(:,1:2:end) = -2*(gauge_stateS(:,1:2:end)-0.5);
 gauge_atom_stateS(:,2:2:end) = 2*(gauge_stateS(:,2:2:end)+0.5);
+
+atom_occupationS(:,1:2:end) = matter_atom_stateS;
+atom_occupationS(:,2:2:end) = gauge_atom_stateS;
 
 
 %%
@@ -81,6 +85,7 @@ basis.gauge_stateS_Ep = gauge_stateS_Ep;
 basis.ns = ns;
 basis.matter_atom_stateS = matter_atom_stateS;
 basis.gauge_atom_stateS = gauge_atom_stateS;
+basis.atom_occupationS = atom_occupationS;
 basis.state_idxlt = state_idxlt;
 
 basis.n_matter = n_matter;

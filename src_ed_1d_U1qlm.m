@@ -31,7 +31,7 @@ addpath(genpath('libs'))
 %% 
 init_atom_configS = [0,2,0,0,0,2,0,0,1,0,0,0,0,2,0];
 % init_atom_configS = [0,2,0,0,0,2,0,0,0,2,0,0,0,2,0];
-% init_atom_configS = [1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1];
+% init_atom_configS = [1,0,1,0,1,0,1,0,0,0,1,0,1,0,1];
 
 L = length(init_atom_configS);
 if ~mod(L,2)
@@ -82,7 +82,7 @@ phi_init(state_idx_init) = 1;
 %% Hamiltonian parameters
 w0 = 25 * 2 * pi;
 w = ones(1,n_gauge) * w0;    % gauge-matter coupling
-m = -4 * abs(w0);     % matter field
+m = -6 * abs(w0);     % matter field
 h = 0.0 * 2 * pi;     % background-electronic field 
 % h = (rand(1,n_gauge)-0.5) * 20.0 * 2 * pi; % background-electronic field 
 % h = ones(1,n_gauge) * 4.0 * 2 * pi; % background-electronic field 
@@ -125,10 +125,17 @@ tl = linspace(0,T,nt);
 dt = tl(2) - tl(1);
 
 
+%% for two-point correlation statistics
+init_matter_occuP = init_atom_matterS;
+init_matter_occuP(init_matter_occuP==0) = -1;
+init_matter_occuP = [0 0 0 0 0 -1 0 0];
+
+
 %%
 density_gauge_Mt = [];
 density_matter_Mt = [];
 density_all_Mt = [];
+twoPts_corrMt = [];
 
 matterF_Mt = [];
 gaugeF_Mt = [];
@@ -136,13 +143,15 @@ gaugeF_Mt = [];
 psic = phi_init;
 probl = abs(conj(psic).*psic);
 
-stat_nC = site_stat_1dqlm_FCN(psic,basis_qlm);
+stat_nC = site_stat_1dqlm_FCN(psic,basis_qlm,init_matter_occuP);
 density_gauge_Mt = cat(1,density_gauge_Mt,stat_nC.density_guage_ltC);
 density_matter_Mt = cat(1,density_matter_Mt,stat_nC.density_matter_ltC);
 density_all_Mt = cat(1,density_all_Mt,stat_nC.density_all);
 
 matterF_Mt = cat(1,matterF_Mt,stat_nC.matter_fieldC);
 gaugeF_Mt = cat(1,gaugeF_Mt,stat_nC.gauge_fieldC);
+
+twoPts_corrMt = cat(1,twoPts_corrMt,stat_nC.two_pts_correlation_ltC);
 
 tStart = tic; 
 for kk = 2:nt
@@ -154,13 +163,14 @@ for kk = 2:nt
     tEC = toc(tSC);
     fprintf('time for evolution: %.6f seconds.\n',tEC)
     
-    stat_nC = site_stat_1dqlm_FCN(psic,basis_qlm);
+    stat_nC = site_stat_1dqlm_FCN(psic,basis_qlm,init_matter_occuP);
     density_gauge_Mt = cat(1,density_gauge_Mt,stat_nC.density_guage_ltC);
     density_matter_Mt = cat(1,density_matter_Mt,stat_nC.density_matter_ltC);
     density_all_Mt = cat(1,density_all_Mt,stat_nC.density_all);
     
     matterF_Mt = cat(1,matterF_Mt,stat_nC.matter_fieldC);
     gaugeF_Mt = cat(1,gaugeF_Mt,stat_nC.gauge_fieldC);
+    twoPts_corrMt = cat(1,twoPts_corrMt,stat_nC.two_pts_correlation_ltC);
     
     % fprintf('\n')
 end
@@ -169,10 +179,27 @@ fprintf('\nElapsed time is %.6f seconds.\n',tEnd)
 
 
 %%
-x = 1:L;
+x = 0:n_matter-1;
 y = tl*1000;
 
 figure('Color','w','Position',[120 120 560 420])
+imagesc(x,y,twoPts_corrMt)
+colormap(hot)
+clb = colorbar;
+clb.Title.String = '';
+clb.Title.FontSize = 14;
+ax = gca;
+ax.FontSize = 14;
+xlabel('\itr','FontSize',16)
+ylabel('Evolution time (ms)','FontSize',16)
+
+% export_fig('-r300','TwoPts_correlation_Conf.png')
+
+%
+x = 1:L;
+y = tl*1000;
+
+figure('Color','w','Position',[720 120 560 420])
 imagesc(x,y,density_all_Mt)
 colormap(hot)
 clb = colorbar;
@@ -183,7 +210,7 @@ ax.FontSize = 14;
 xlabel('Sites','FontSize',16)
 ylabel('Evolution time (ms)','FontSize',16)
 
-% export_fig('-r300','Density_profile_THE1.png')
+% export_fig('-r300','Density_profile_Conf.png')
 
 % figure('Color','w','Position',[120 120 560 420])
 % imagesc(x,y,gaugeF_Mt)
@@ -192,12 +219,12 @@ ylabel('Evolution time (ms)','FontSize',16)
 % xlabel('Sites','FontSize',16)
 % ylabel('Evolution time (ms)','FontSize',16)
 
-figure('Color','w','Position',[720 120 560 420])
-plot(tl*1000,-mean(gaugeF_Mt,2),'LineWidth',2)
-ax = gca;
-ax.FontSize = 14;
-xlabel('Evolution time (ms)','FontSize',16)
-ylabel('\langle \itE \rangle','FontSize',16)
+% figure('Color','w','Position',[720 120 560 420])
+% plot(tl*1000,-mean(gaugeF_Mt,2),'LineWidth',2)
+% ax = gca;
+% ax.FontSize = 14;
+% xlabel('Evolution time (ms)','FontSize',16)
+% ylabel('\langle \itE \rangle','FontSize',16)
 
 
 return

@@ -79,13 +79,13 @@ phi_init(state_idx_init) = 1;
 
 %% Hamiltonian parameters
 % Sample number
-n_sample = 50;
-r_amp = 10.0;
+n_sample = 500;
+r_amp = 20.0;
 
 % parameters
 w0 = 25 * 2 * pi;
 w = ones(1,n_gauge) * w0;    % gauge-matter coupling
-m = -4 * abs(w0);     % matter field
+m = 4 * abs(w0);     % matter field
 % h = 0.0 * 2 * pi;     % background-electronic field 
 h_mat = r_amp * randi([-1,1],n_sample,n_gauge) * 2 * pi; % background-electronic field 
 % h = (rand(1,n_gauge)-0.5) * 20.0 * 2 * pi; % background-electronic field 
@@ -186,7 +186,7 @@ ylabel('Evolution time (ms)','FontSize',16)
 
 
 %
-figure('Color','w','Position',[120 120 560 420])
+figure('Color','w','Position',[120 120 520 300])
 imagesc(x,y,density_sample)
 colormap(hot)
 clb = colorbar;
@@ -194,6 +194,8 @@ clb.Title.String = '\rho';
 clb.Title.FontSize = 14;
 ax = gca;
 ax.FontSize = 14;
+ax.YTick = 0:20:120;
+ax.YTickLabel = num2cell(0:20:120);
 xlabel('Sites','FontSize',16)
 ylabel('Evolution time (ms)','FontSize',16)
 

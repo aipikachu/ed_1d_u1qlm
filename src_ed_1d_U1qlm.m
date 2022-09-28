@@ -29,9 +29,12 @@ addpath(genpath('libs'))
 
 
 %% 
-init_atom_configS = [0,2,0,0,0,2,0,0,1,0,0,0,0,2,0];
-% init_atom_configS = [0,2,0,0,0,2,0,0,0,2,0,0,0,2,0];
+init_atom_configS = [0,2,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0,2,0,0,1,0,0,0,0,2,0];
+% init_atom_configS = [0,2,0,0,0,2,0,0,1,0,0,0,0,2,0];
 % init_atom_configS = [1,0,1,0,1,0,1,0,0,0,1,0,1,0,1];
+
+% init_atom_configS = zeros(1,41);
+% init_atom_configS(1:2:end) = 1;
 
 L = length(init_atom_configS);
 if ~mod(L,2)
@@ -62,9 +65,13 @@ gauge_edge(2) = init_Gl(end) + init_state_matterS(end) ...
 
 
 %% basis
+fprintf('generating basis.\n')
+tBase = tic;
 basis_qlm = boson_basis_1dqlm(L,init_Gl,gauge_edge);
+tD_base = toc(tBase);
+fprintf('elapsed time is %.6f seconds.\n',tD_base)
 ns = basis_qlm.ns;
-fprintf('Total basis number is %d.\n',ns)
+fprintf('total basis number is %d.\n',ns)
 
 
 %% initial state
@@ -82,7 +89,7 @@ phi_init(state_idx_init) = 1;
 %% Hamiltonian parameters
 w0 = 25 * 2 * pi;
 w = ones(1,n_gauge) * w0;    % gauge-matter coupling
-m = -6 * abs(w0);     % matter field
+m = 4 * abs(w0);     % matter field
 h = 0.0 * 2 * pi;     % background-electronic field 
 % h = (rand(1,n_gauge)-0.5) * 20.0 * 2 * pi; % background-electronic field 
 % h = ones(1,n_gauge) * 4.0 * 2 * pi; % background-electronic field 
@@ -112,7 +119,6 @@ fprintf('Number of nonzero hamiltonian elements: %d.\n',nnz(ham))
 % 
 % basis_qlm.matter_atom_stateS(7,:)
 % basis_qlm.gauge_atom_stateS(7,:)
-
 
 
 %% ramp time list
@@ -182,7 +188,7 @@ fprintf('\nElapsed time is %.6f seconds.\n',tEnd)
 x = 0:n_matter-1;
 y = tl*1000;
 
-figure('Color','w','Position',[120 120 560 420])
+figure('Color','w','Position',[120 120 520 300])
 imagesc(x,y,twoPts_corrMt)
 colormap(hot)
 clb = colorbar;
@@ -190,16 +196,19 @@ clb.Title.String = '';
 clb.Title.FontSize = 14;
 ax = gca;
 ax.FontSize = 14;
+ax.YTick = 0:20:120;
+ax.YTickLabel = num2cell(0:20:120);
 xlabel('\itr','FontSize',16)
 ylabel('Evolution time (ms)','FontSize',16)
 
-% export_fig('-r300','TwoPts_correlation_Conf.png')
+% export_fig('-r300','TwoPts_correlation_DeConf_The.png')
 
+%%
 %
 x = 1:L;
 y = tl*1000;
 
-figure('Color','w','Position',[720 120 560 420])
+figure('Color','w','Position',[720 120 520 300])
 imagesc(x,y,density_all_Mt)
 colormap(hot)
 clb = colorbar;
@@ -207,10 +216,12 @@ clb.Title.String = '\rho';
 clb.Title.FontSize = 14;
 ax = gca;
 ax.FontSize = 14;
+ax.FontSize = 14;
+ax.YTick = 0:20:120;
 xlabel('Sites','FontSize',16)
 ylabel('Evolution time (ms)','FontSize',16)
 
-% export_fig('-r300','Density_profile_Conf.png')
+% export_fig('-r300','Density_profile_DeConf_The.png')
 
 % figure('Color','w','Position',[120 120 560 420])
 % imagesc(x,y,gaugeF_Mt)

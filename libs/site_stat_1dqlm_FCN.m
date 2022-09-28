@@ -61,7 +61,7 @@ for kk = 1:n_matter
     catch
         
     end    
-    two_pts_correlation_ltC(kk) = sum(G_cur .* prob_ltC,1,'omitnan');   
+    two_pts_correlation_ltC(kk) = sum(G_cur .* prob_ltC,1,'omitnan')/(n_matter+1-kk);   
 
 end
 
